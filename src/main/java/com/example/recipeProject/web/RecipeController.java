@@ -80,7 +80,7 @@ public class RecipeController {
     	System.out.println(forgotForm.getEmail());
     	forgotRepository.save(forgotForm);
     	Sahkoposti email = new Sahkoposti();
-    	email.lahetaSahkoposti("jtjuslin","Armtv1990!3l33th4x", "jukka.juslin@haaga-helia.fi", "Reset key", "Secret number: " + randomNumber );
+    	email.lahetaSahkoposti("jtjuslin","KYSYJUKALTA", "jukka.juslin@haaga-helia.fi", "Reset key", "Secret number: " + randomNumber );
     	model.addAttribute("signupform", new SignupForm());
         return "signup";
     }	
