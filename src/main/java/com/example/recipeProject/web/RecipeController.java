@@ -31,6 +31,8 @@ import com.example.recipeProject.domain.Recipe;
 import com.example.recipeProject.domain.RecipeRepository;
 
 import com.example.recipeProject.domain.SignupForm;
+
+
 import com.example.recipeProject.domain.Login;
 
 
@@ -53,15 +55,20 @@ public class RecipeController {
 	
     @RequestMapping(value = "signup")
     public String addStudent(Model model){
+    	System.out.println("SAVE2SAVE2");
     	model.addAttribute("signupform", new SignupForm());
         return "signup";
     }	
     
     @RequestMapping(value = "saveuser", method = RequestMethod.POST)
     public String save(@Valid @ModelAttribute("signupform") SignupForm signupForm, BindingResult bindingResult) {
+    	System.out.println("SAVESAVE");
     	if (!bindingResult.hasErrors()) { // validation errors
+    		System.out.println(bindingResult);
+    		System.out.println("ERRORS");
     		if (signupForm.getPassword().equals(signupForm.getPasswordCheck())) { // check password match		
-	    		String pwd = signupForm.getPassword();
+        		System.out.println("NOTERRORS");			
+    			String pwd = signupForm.getPassword();
 		    	BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
 		    	String hashPwd = bc.encode(pwd);
 	
@@ -69,8 +76,14 @@ public class RecipeController {
 		    	newUser.setPasswordHash(hashPwd);
 		    	newUser.setUsername(signupForm.getUsername());
 		    	newUser.setRole("USER");
+		    	newUser.setEmail("jukka@hotmail.com");
+		    	System.out.println("JUKKA " + newUser);
 		    	if (lrepository.findByUsername(signupForm.getUsername()) == null) { // Check if user exists
 		    		lrepository.save(newUser);
+					System.out.println("fetch all USERS");
+					for (Login login : lrepository.findAll()) {
+						System.out.println(login.toString());
+					}
 		    	}
 		    	else {
 	    			bindingResult.rejectValue("username", "err.username", "Username already exists");    	
