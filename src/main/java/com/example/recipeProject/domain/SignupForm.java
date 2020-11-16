@@ -18,12 +18,26 @@ public class SignupForm {
     private String passwordCheck = "";
 
     @NotEmpty
-    @Size(min=7, max=30)
-    private String email = "jukka@email.com";
+    @Size(min=4, max=60)
+    private String email = "";
+
+    
+    private String secret = "";
     
     
     @NotEmpty
     private String role = "USER";
+
+    
+    
+    
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
+	}
 
 	public String getUsername() {
 		return username;

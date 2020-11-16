@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import javax.validation.Valid;
 
@@ -29,9 +30,10 @@ import com.example.recipeProject.domain.LoginRepository;
 import com.example.recipeProject.domain.MeasuringUnitRepository;
 import com.example.recipeProject.domain.Recipe;
 import com.example.recipeProject.domain.RecipeRepository;
+import com.example.recipeProject.domain.ForgotFormRepository;
 
 import com.example.recipeProject.domain.SignupForm;
-
+import com.example.recipeProject.domain.ForgotForm;
 
 import com.example.recipeProject.domain.Login;
 
@@ -39,7 +41,9 @@ import com.example.recipeProject.domain.Login;
 
 @Controller
 public class RecipeController {
-	
+
+	@Autowired
+	private ForgotFormRepository forgotRepository;
 	@Autowired
 	private RecipeRepository repository;
 	@Autowired
@@ -59,6 +63,28 @@ public class RecipeController {
     	model.addAttribute("signupform", new SignupForm());
         return "signup";
     }	
+
+    @RequestMapping(value = "forgot")
+    public String forgotPassword(Model model){
+    	System.out.println("FORGOTPASSWORD");
+    	model.addAttribute("forgotForm", new ForgotForm());
+        return "forgotpassword";
+    }	
+
+    @RequestMapping(value = "sendforgot", method = RequestMethod.POST)
+    public String sendforgotPassword(@ModelAttribute("forgotForm") ForgotForm forgotForm, Model model) {
+    	System.out.println("FORGOTPASSWORD SEND");
+    	Random random = new Random();
+    	int randomNumber = random.nextInt(20000000);
+    	forgotForm.setSecret(randomNumber + "");
+    	System.out.println(forgotForm.getEmail());
+    	forgotRepository.save(forgotForm);
+    	Sahkoposti email = new Sahkoposti();
+    	email.lahetaSahkoposti("jtjuslin","Armtv1990!3l33th4x", "jukka.juslin@haaga-helia.fi", "Reset key", "Secret number: " + randomNumber );
+    	model.addAttribute("signupform", new SignupForm());
+        return "signup";
+    }	
+    
     
     @RequestMapping(value = "saveuser", method = RequestMethod.POST)
     public String save(@Valid @ModelAttribute("signupform") SignupForm signupForm, BindingResult bindingResult) {
@@ -71,19 +97,24 @@ public class RecipeController {
     			String pwd = signupForm.getPassword();
 		    	BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
 		    	String hashPwd = bc.encode(pwd);
-	
-		    	Login newUser = new Login();
+		    	Login newUser = new Login();	
+		    	ForgotForm forgot = forgotRepository.findByEmail(signupForm.getEmail());
+		    	Login login = lrepository.findByEmail(signupForm.getEmail());
+		    	
+		    	if((forgot.getSecret()).equals(signupForm.getSecret())) {
+		    		newUser.setId(login.getId());
+		    	}
+		    	
+
 		    	newUser.setPasswordHash(hashPwd);
 		    	newUser.setUsername(signupForm.getUsername());
 		    	newUser.setRole("USER");
-		    	newUser.setEmail("jukka@hotmail.com");
+		    	newUser.setEmail(signupForm.getEmail());
 		    	System.out.println("JUKKA " + newUser);
 		    	if (lrepository.findByUsername(signupForm.getUsername()) == null) { // Check if user exists
 		    		lrepository.save(newUser);
 					System.out.println("fetch all USERS");
-					for (Login login : lrepository.findAll()) {
-						System.out.println(login.toString());
-					}
+
 		    	}
 		    	else {
 	    			bindingResult.rejectValue("username", "err.username", "Username already exists");    	
